@@ -1,0 +1,15 @@
+{
+  "name": "appmine",
+  "version": "1.0.0",
+  "description": "One Stop Application store.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pranjal Tripathi",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sniffr": "^1.2.0"
+  }
+}
