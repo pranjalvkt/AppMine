@@ -1,10 +1,36 @@
 const express = require('express')
+const mongoose = require('mongoose');
+const path = require('path');
 const app = express();
 const bodyParser = require("body-parser");
+const fs = require('fs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+
+const db = 'mongodb+srv://admin123:PranjalT%400809@cluster1.acwvi.mongodb.net/appmine';
+// ?retryWrites=true&w=majority
+
+mongoose.connect(db, {
+    useNewUrlParser : true,
+    useUnifiedTopology: true
+}).then(()=>{
+    console.log("Database is connected");
+}).catch(err => console.log("Database connection failed!" + err));
+
+const appSchema = new mongoose.Schema({
+    image: String, 
+    title: String,
+    para: String,
+    name: String
+});
+
+const appsData = mongoose.model("app", appSchema);
+
 
 
 
@@ -15,6 +41,21 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
     res.sendFile(__dirname + '/about.html');
+});
+
+app.get('/success', (req, res) => {
+    res.sendFile(__dirname + '/success.html');
+});
+
+// HOME PAGE FOR WINDOWS
+app.get('/windowsHome', (req, res)=>{
+    appsData.find(function(err, app) {
+        if(err) {
+           console.log(err);
+        } else {
+            res.render("windowsHome.ejs", {app: app});
+        }
+    })
 });
 
 
@@ -59,7 +100,8 @@ app.get('/home', (req, res) => {
         if(element.startsWith('Mozilla')) {
             console.log(element);
             if(element.includes("Windows")) {
-                res.sendFile(__dirname + '/cards.html')
+                // res.sendFile(__dirname + '/cards.html')
+                res.redirect('/windowsHome')
             } else if(element.includes("Android")){
                 res.sendFile(__dirname + '/androidAppList.html')
             } else {
@@ -119,6 +161,53 @@ app.post('/adminSignUp', (req, res) => {
 app.get('/adminHome', (req, res) => {
     res.sendFile(__dirname + '/adminHome.html')
 });
+
+app.get('/publishApp', (req, res) => {
+    res.sendFile(__dirname + '/PublishApp.html')
+});
+
+app.post('/publishApp', (req, res)=>{
+
+    let appName = req.body.appName;
+    let appDesc = req.body.appDesc;
+    let contentToCopy = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src = "https://socket.io/socket.io.js"></script>
+        <title>${appName}</title>
+    </head>
+    <body>
+        
+            
+        <center><h1>${appName}</center>
+       <center><img src="https://images.sftcdn.net/images/t_app-logo-xl,f_auto/p/bbdedd58-96bf-11e6-ab2f-00163ed833e7/2782924292/adobe-photoshop-icon.png"></center>
+        <pre>
+            
+        <center>
+            <button id = "btn_download">Download</button>
+        </center>
+        <pre>
+        <center><h1>Description</h1></center>
+        <center>
+            <p>${appDesc}</p>
+        </center>
+        <script type="text/javascript">
+            $("#btn_download").click(function(){
+                window.open('/download/${appName}.exe');
+            })
+        </script>
+    </body>
+    </html>`
+    
+    fs.appendFile('appPages/' + appName + '.html', contentToCopy, function (err) {
+        if (err) throw err;
+        console.log('Saved!');
+    });
+})
 
 
 app.listen(80, () => { 
