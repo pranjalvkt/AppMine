@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose');
 const User = require('./Models/userModel');
 const Admin = require('./Models/adminModel');
+const appsData = require('./Models/appModel');
 const path = require('path');
 const app = express();
 const bodyParser = require("body-parser");
@@ -20,16 +21,6 @@ mongoose.connect(db, {
 }).then(()=>{
     console.log("Database is connected");
 }).catch(err => console.log("Database connection failed!" + err));
-
-const appSchema = new mongoose.Schema({
-    image: String, 
-    title: String,
-    para: String,
-    name: String,
-    appAdmin: String,
-    appOS: String
-});
-const appsData = mongoose.model("app", appSchema);
 
 
 app.get('/', (req, res) => {
@@ -85,6 +76,9 @@ app.post('/userSignIn', (req, res) => {
                     console.log("Invalid email/password");
                     res.redirect('/userSignIn')
                 }
+            } else {
+                console.log("User doesn't exist, Sign up first");
+                res.redirect('/userSignup');
             }
         }
     })
@@ -110,7 +104,8 @@ app.post('/userSignUp', (req, res) => {
                     console.log("User already exist");
                     res.redirect('/home');
                 } else {
-                    res.redirect('/userSignUp')
+                    console.log("User already exist, please Sign in instead");
+                    res.redirect('/userSignIn')
                 }
             } else {
                 newUser.save((err) => {
@@ -173,22 +168,62 @@ app.get('/adminSignUp', (req, res) => {
 //Admin Signin details
 app.post('/adminSignIn', (req, res) => {
 
-    let adminSignin = {
-        email : req.body.adminSignin_email,
-        password: req.body.adminSignin_password,
-    }
-    console.log(adminSignin);
+    const currEmail = req.body.adminSignin_email;
+    const currPassword = req.body.adminSignin_password;
+    
+    Admin.findOne({email: currEmail}, (err, foundUser)=>{
+        if(err) {
+            console.log(err);
+        } else {
+            if(foundUser) {
+                if(foundUser.password === currPassword) {
+                    res.redirect('/publishApp');
+                } else {
+                    console.log("Invalid email/password");
+                    res.redirect('/adminSignIn')
+                }
+            } else {
+                console.log("Admin doesn't exist, Sign up first");
+                res.redirect('/adminSignup');
+            }
+        }
+    })
 });
 
 //Admin signup details
 app.post('/adminSignUp', (req, res) => {
 
-    let adminSignup = {
+    const currEmail = req.body.adminSignup_email;
+    const currPassword = req.body.adminSignup_password;
+    const newAdmin = new Admin ({
         name: req.body.adminSignup_name,
-        email : req.body.adminSignup_email,
-        password: req.body.adminSignup_password,
-    }
-    console.log(adminSignup);
+        email : currEmail,
+        password: currPassword,
+    })
+    Admin.findOne({email: currEmail}, (err, foundUser)=>{
+        if(err) {
+            console.log(err);
+        } else {
+            if(foundUser) {
+                if(foundUser.password === currPassword) {
+                    console.log("User already exist");
+                    res.redirect('/publishApp');
+                } else {
+                    console.log("user already exist, please Sign in instead");
+                    res.redirect('/adminSignIn')
+                }
+            } else {
+                newAdmin.save((err) => {
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        console.log("New Admin created");
+                        res.redirect('/publishApp')
+                    }
+                })
+            }
+        }
+    })
 });
 
 //Admin Home page
@@ -196,15 +231,14 @@ app.get('/adminHome', (req, res) => {
     res.sendFile(__dirname + '/adminHome.html')
 });
 
-app.get('/deleteApp', (req, res)=> {
+app.get('/deleteApp/:value', async (req, res)=> {
     // DELETE APP CREATED BY CURRENT ADMIN
     let value = req.url;
-    let toRemove = value.slice(10, -5);
-    let query = { name: 'dfd' };
+    let toRemove = value.slice(11);
+    let query = { name: toRemove };
     appsData.deleteOne(query, function(err, obj) {
         if (err) throw err;
         console.log("1 document deleted");
-        // console.log(obj);
         res.sendFile(__dirname + '/deleted.html');
     });
 })
