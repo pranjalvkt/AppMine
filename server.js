@@ -144,8 +144,17 @@ app.get('/home', (req, res) => {
 //Individual app page
 app.get("/appPages/:value", (req, res) => {
     value = req.url;
-    // console.log();
-    res.sendFile(__dirname+value);
+    
+    let currAppName = value.slice(10);
+    // console.log(currAppName);
+
+    appsData.findOne({name: currAppName}, (err, currApp)=>{
+        if(err) {
+            console.log(err);
+        } else {
+            res.render("currApp.ejs", {currApp: currApp});
+        }
+    });
 });
 
 app.get('/download/:value',function(req,res){
@@ -280,6 +289,8 @@ app.post('/publishApp', (req, res)=>{
         appOS: appOS
     });
     
+
+    //*************************** USELESS CODE, REMOVE WHEN COMPLETED */
     appName = appName.toLowerCase();
     let contentToCopy = `<!DOCTYPE html>
     <html lang="en">
@@ -314,10 +325,12 @@ app.post('/publishApp', (req, res)=>{
     </body>
     </html>`
     
-    fs.appendFile('appPages/' + appName + '.html', contentToCopy, function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-    });
+    // fs.appendFile('appPages/' + appName + '.html', contentToCopy, function (err) {
+    //     if (err) throw err;
+    //     console.log('Saved!');
+    // });
+    //*************************** USELESS CODE, REMOVE WHEN COMPLETED */
+
     appsData.insertMany([mong], function(err){
         if(err) {
             console.log(err);
