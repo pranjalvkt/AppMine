@@ -240,3 +240,10 @@ input {
 .container.right-panel-active .overlay-right {
   transform: translateX(20%);
 }
+
+.outer-strip {
+  /* height: 100%;
+  width: 70%;
+  background-color: #6441A5; */
+  /* margin: auto; */
+}

@@ -5,6 +5,10 @@ const appSchema = new mongoose.Schema({
     para: String,
     name: String,
     appAdmin: String,
-    appOS: String
+    appOS: String,
+    downloadNum: Number,
+    reviewSum: Number,
+    reviewCount: Number,
+    review: Number
 });
 module.exports = mongoose.model("app", appSchema);

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src = "https://socket.io/socket.io.js"></script>
+    <title><%=currApp.title%></title>
+</head>
+<body>
+    
+        
+    <center><h1><%=currApp.title%></h1></center>
+   <center><img src= <%= currApp.image %> ></center>
+    <pre>
+        
+    <center>
+        <button id = "btn_download">Download</button>
+    </center>
+    <pre>
+    <center><h1>Description</h1></center>
+    <center>
+        <p><%=currApp.para%></p>
+    </center>
+    <h1>WE APPRECIATE YOUR REVIEW!</h1>
+    <form action="/appPages/<%=currApp.name%>" method="post">
+        <label for="cars">Rate our Application</label>
+        <select name="rating" id="rating">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5/option>
+        </select>
+        <br>
+        <input type="submit" value="Submit">
+      </form>
+    <script type="text/javascript">
+        $("#btn_download").click(function(){
+            //TODO 1
+            // Change the app name according to the page
+            window.open('/download/<%=currApp.name%>.apk');
+        })
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,7 +34,7 @@
           </div>
         </div>
       </nav>
-    <form action="#" method="POST" id="appDetails">
+    <form action="/publishApp" method="POST" id="appDetails">
         <label for="name">Enter your Application name</label>
         <br>
         <input type="text" placeholder="App name" name="appName"/>
@@ -58,4 +58,196 @@
         <button class="btn-grad" type="submit">submit</button>
     </form>
 </body>
+</html> -->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Workplace Complaint Form</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+    integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <style>
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body,
+    div,
+    form,
+    input,
+    select,
+    p {
+      padding: 0;
+      margin: 0;
+      outline: none;
+      font-family: Roboto, Arial, sans-serif;
+      font-size: 14px;
+      color: #666;
+      line-height: 22px;
+    }
+
+    h1 {
+      margin: 15px 0;
+      font-weight: 400;
+    }
+
+    .testbox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: inherit;
+      padding: 3px;
+    }
+
+    form {
+      width: 100%;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 5px #ccc;
+    }
+
+    input,
+    select,
+    textarea {
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    input:hover,
+    select:hover,
+    textarea:hover {
+      outline: none;
+      border: 1px solid #095484;
+    }
+
+    input {
+      width: calc(100% - 10px);
+      padding: 5px;
+    }
+
+    select {
+      width: 100%;
+      padding: 7px 0;
+      background: transparent;
+    }
+
+    textarea {
+      width: calc(100% - 6px);
+    }
+
+    .item {
+      position: relative;
+      margin: 10px 0;
+    }
+
+    input[type="date"]::-webkit-inner-spin-button {
+      display: none;
+    }
+
+    .item i,
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      position: absolute;
+      font-size: 20px;
+      color: #a9a9a9;
+    }
+
+    .item i {
+      right: 2%;
+      top: 30px;
+      z-index: 1;
+    }
+
+    [type="date"]::-webkit-calendar-picker-indicator {
+      right: 1%;
+      z-index: 2;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .btn-block {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    button {
+      width: 150px;
+      padding: 10px;
+      border: none;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+      background-color: #095484;
+      font-size: 16px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0666a3;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">AppMine</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarScroll">
+        <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="publishApp">Create App</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="createdApp">View All Apps</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="userSignIn">Download app</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="testbox">
+    <form action="/publishApp" method="post" id="appDetails">
+      <h1>Publish Application</h1>
+
+      <div class="item">
+        <p>Application Name</p>
+        <div>
+          <input type="text" name="appName" />
+        </div>
+      </div>
+
+      <div class="item">
+        <p>Image URL</p>
+        <input type="text" name="appImg" />
+      </div>
+
+      <div class="item">
+        <p>Description</p>
+        <textarea rows="5" name="appDesc"></textarea>
+      </div>
+      <div class="item">
+        <p>Developer username</p>
+        <input type="text" name="appAdmin" />
+      </div>
+      <div class="item">
+        <p>Operating System name</p>
+        <input type="text" name="appOS" />
+      </div>
+      <br>
+        <button class="btn-grad" type="submit">Submit</button>
+
+    </form>
+  </div>
+</body>
+
 </html>

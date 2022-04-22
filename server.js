@@ -4,9 +4,11 @@ const User = require('./Models/userModel');
 const Admin = require('./Models/adminModel');
 const appsData = require('./Models/appModel');
 const path = require('path');
+const multer = require("multer")
 const app = express();
 const bodyParser = require("body-parser");
 const fs = require('fs');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
@@ -43,6 +45,17 @@ app.get('/windowsHome', (req, res)=>{
            console.log(err);
         } else {
             res.render("windowsHome.ejs", {app: app});
+        }
+    })
+});
+// HOME PAGE FOR ANDROID
+app.get('/androidHome', (req, res)=>{
+    var query = { appOS: "android" };
+    appsData.find(query, function(err, app) {
+        if(err) {
+           console.log(err);
+        } else {
+            res.render("androidHome.ejs", {app: app});
         }
     })
 });
@@ -128,12 +141,12 @@ app.get('/home', (req, res) => {
     let os = req.rawHeaders
     os.forEach(element => {
         if(element.startsWith('Mozilla')) {
-            console.log(element);
+            // console.log(element);
             if(element.includes("Windows")) {
                 // res.sendFile(__dirname + '/cards.html')
                 res.redirect('/windowsHome')
             } else if(element.includes("Android")){
-                res.sendFile(__dirname + '/androidAppList.html')
+                res.redirect('/androidHome')
             } else {
                 res.send("<h1> Not able to detect your OS, enter manually !</h1>"); 
             }
@@ -146,20 +159,71 @@ app.get("/appPages/:value", (req, res) => {
     value = req.url;
     
     let currAppName = value.slice(10);
-    // console.log(currAppName);
-
-    appsData.findOne({name: currAppName}, (err, currApp)=>{
+    appsData.findOne({name: currAppName}, (err, currApp)=> {
         if(err) {
             console.log(err);
         } else {
-            res.render("currApp.ejs", {currApp: currApp});
+            if (currApp.appOS == 'windows') {
+                res.render("currApp.ejs", {currApp: currApp});
+            } else {
+                res.render("currAndroidApp.ejs", {currApp: currApp});
+            }
+            
         }
     });
 });
 
-app.get('/download/:value',function(req,res){
+app.post("/appPages/:value", (req, res) => {
+    let value = req.url;
+    let currAppName = value.slice(10);
+    let currReviewCount;
+    let currReviewSum;
+
+    appsData.findOne({name: currAppName}, async (err, currApp)=> {
+        if(err) {
+            console.log(err);
+        } else {
+            currReviewCount = currApp.reviewCount + 1;
+            currReviewSum = currApp.reviewSum + Number (req.body.rating);
+            console.log(currApp.reviewSum);
+            console.log(currReviewSum);
+            let oldReview = {review: currApp.review,
+                 reviewCount: currApp.reviewCount,
+                 reviewSum: currApp.reviewSum};
+            // let newReview = { $set: {review: currReviewSum / currReviewCount}};
+            let newReview = { $set: {review: currReviewSum / currReviewCount,
+             reviewCount: currReviewCount,
+              reviewSum: currReviewSum}};
+            appsData.updateOne(oldReview, newReview, (err, res)=> {
+                if (err) throw err;
+                console.log("1 document updated");
+            })
+        }
+    })
+    
+});
+
+app.get('/download/:value',async function(req,res){
     value = req.url;
     res.download(__dirname +value,'app.exe');
+    let currAppName = value.slice(10, -4);
+    currAppName = currAppName.toLowerCase();
+    let currDownloadNum;
+    let newDownloadNum;
+    appsData.findOne({name: currAppName}, async (err, currApp)=> {
+        if(err) {
+            console.log(err);
+        } else {
+            currDownloadNum = {downloadNum: currApp.downloadNum};
+            newDownloadNum = { $set: {downloadNum: currApp.downloadNum + 1}};
+            // console.log(currApp.downloadNum+1);
+            appsData.updateOne(currDownloadNum, newDownloadNum, (err, res)=> {
+                if (err) throw err;
+                console.log("1 document updated");
+            })
+        }
+    })
+    
 })
 
 
@@ -272,6 +336,8 @@ app.get('/publishApp', (req, res) => {
     res.sendFile(__dirname + '/PublishApp.html')
 });
 
+
+
 app.post('/publishApp', (req, res)=>{
     // PAGE FOR CREATING NEW APP
     let appName = req.body.appName;
@@ -279,58 +345,22 @@ app.post('/publishApp', (req, res)=>{
     let appImg = req.body.appImg;
     let appAdmin = req.body.appAdmin;
     let appOS = req.body.appOS;
-    // let appOS = tempAppOS.toLowerCase()
+    let appTitle = appName;
+    appName = appName.replace(/\s/g, "");
+    appName = appName.toLowerCase();
     const mong = new appsData ({
-        name: appName.toLowerCase(),
+        name: appName,
         image: appImg,
         para: appDesc,
-        title: appName,
+        title: appTitle,
         appAdmin: appAdmin,
-        appOS: appOS
+        appOS: appOS,
+        downloadNum: 0,
+        reviewCount: 0,
+        reviewSum: 0,
+        review: 0,
     });
     
-
-    //*************************** USELESS CODE, REMOVE WHEN COMPLETED */
-    appName = appName.toLowerCase();
-    let contentToCopy = `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src = "https://socket.io/socket.io.js"></script>
-        <title>${appName}</title>
-    </head>
-    <body>
-        
-            
-        <center><h1>${appName}</center>
-       <center><img src="https://images.sftcdn.net/images/t_app-logo-xl,f_auto/p/bbdedd58-96bf-11e6-ab2f-00163ed833e7/2782924292/adobe-photoshop-icon.png"></center>
-        <pre>
-            
-        <center>
-            <button id = "btn_download">Download</button>
-        </center>
-        <pre>
-        <center><h1>Description</h1></center>
-        <center>
-            <p>${appDesc}</p>
-        </center>
-        <script type="text/javascript">
-            $("#btn_download").click(function(){
-                window.open('/download/${appName}.exe');
-            })
-        </script>
-    </body>
-    </html>`
-    
-    // fs.appendFile('appPages/' + appName + '.html', contentToCopy, function (err) {
-    //     if (err) throw err;
-    //     console.log('Saved!');
-    // });
-    //*************************** USELESS CODE, REMOVE WHEN COMPLETED */
-
     appsData.insertMany([mong], function(err){
         if(err) {
             console.log(err);
@@ -340,6 +370,35 @@ app.post('/publishApp', (req, res)=>{
         }
     });
 })
+
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "download");
+    },
+    filename: (req, file, cb) => {
+      const app = file.originalname.split(".");
+      cb(null, `${app[0]}.${app[1]}`);
+    },
+});
+const upload = multer({
+    storage: multerStorage,
+});
+
+app.post('/success', upload.single("appFile"), async (req, res)=>{
+    try {
+        const newFile = await File.create({
+          name: req.file.filename,
+        });
+        res.status(200).json({
+          status: "success",
+          message: "File created successfully!!",
+        });
+    } catch (error) {
+        res.json({
+          error,
+        });
+    }
+}) 
 
 
 app.listen(80, () => { 
